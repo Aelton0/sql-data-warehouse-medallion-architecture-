@@ -1,6 +1,12 @@
+/* ===========================
+   CARREGARNDO A CAMADA BRONZE
+   ===========================*/
+  
+/*===========================
+   CARREGARNDO ARQUIVOS CRM
+  ===========================*/
 
 TRUNCATE TABLE bronze_crm_cust_info;
-
 LOAD DATA INFILE 'C:/ProgramData/MySQL/MySQL Server 8.0/Uploads/sql-data-warehouse-project/datasets/source_crm/cust_info.csv'
 INTO TABLE bronze_crm_cust_info
 CHARACTER SET utf8mb4
@@ -48,6 +54,10 @@ sls_sales = NULLIF(@sls_sales,''),
 sls_quantity = NULLIF(@sls_quantity,''),
 sls_price = NULLIF(@sls_price,'');
 
+/*===========================
+   CARREGARNDO ARQUIVOS ERP
+  ===========================*/
+
 TRUNCATE TABLE bronze_erp_cust_az12;
 LOAD DATA INFILE 'C:/ProgramData/MySQL/MySQL Server 8.0/Uploads/sql-data-warehouse-project/datasets/source_erp/CUST_AZ12.csv'
 INTO TABLE bronze_erp_cust_az12
@@ -59,5 +69,23 @@ IGNORE 1 LINES
 SET
 bdate = NULLIF(@bdate,''),
 gen = NULLIF(@gen,'');
+
+TRUNCATE TABLE bronze_erp_loc_a101;
+LOAD DATA INFILE 'C:/ProgramData/MySQL/MySQL Server 8.0/Uploads/sql-data-warehouse-project/datasets/source_erp/LOC_A101.csv'
+INTO TABLE bronze_erp_loc_a101
+ CHARACTER SET utf8mb4
+FIELDS TERMINATED BY ','
+LINES TERMINATED BY '\r\n'
+IGNORE 1 LINES
+(cid,cntry);
+
+TRUNCATE TABLE bronze_erp_px_cat_g1v2;
+LOAD DATA INFILE 'C:/ProgramData/MySQL/MySQL Server 8.0/Uploads/sql-data-warehouse-project/datasets/source_erp/PX_CAT_G1V2.csv'
+INTO TABLE bronze_erp_px_cat_g1v2
+ CHARACTER SET utf8mb4
+FIELDS TERMINATED BY ','
+LINES TERMINATED BY '\r\n'
+IGNORE 1 LINES
+(id,cat,subcat,maintenance);
 
 
