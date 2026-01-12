@@ -1,0 +1,171 @@
+/*
+  =====================================================================================
+  DDL SCRIPT: CRIAÇÃO DA CAMADA SILVER
+  =====================================================================================
+PARA QUE SERVER ESSE SCRIPT:
+  -ANTES DE CARREGAR O SCRIP FAZ O TRUNCATE DA TABELA
+  -FAZ O CARREGAMENTO DOS ARQUIVOS PROVIDOS DO CRM E ERP ATRAVES DE LOAD DATA INFILE
+  -FAZ PEQUENAS TRATATIVAS DE DADOS COMO CELULAS VAZIAS E DEFINE ELAS COMO NULAS
+  (CARACTERISTICA DO MY SQL DE LER VAZIA COMO STR)
+  -GARANTE A INTEGRIDADE DO PIPELINE MESMO COM CSV 'SUJO'
+  -ADICIONADO COLUNA DE METADADO
+  
+  **ATENÇÃO ESSE SCRIP FAZ DROP DAS TABELAS E AS RECRIA**
+  =====================================================================================
+*/
+USE DATAWAREHOUSE;
+DROP TABLE IF EXISTS silver_crm_cust_info;
+CREATE TABLE silver_crm_cust_info (
+ cst_id INT,
+ cst_key VARCHAR (50),
+ cst_firstname VARCHAR (50),
+ cst_lastname VARCHAR (50),
+ cst_marital_status CHAR (1),
+ cst_gndr CHAR (1),
+ cst_create_data DATE,
+ dwt_create_date DATETIME DEFAULT (NOW())
+);
+
+DROP TABLE IF EXISTS silver_crm_prd_info;
+CREATE TABLE silver_crm_prd_info (
+prd_id INT,
+prd_key VARCHAR (50),
+prd_nm VARCHAR (50),
+prd_cost FLOAT (10,2),
+prd_line CHAR(1),
+prd_start_dt DATETIME,
+prd_end_dt DATETIME,
+dwt_create_date DATETIME DEFAULT (NOW())
+);
+
+DROP TABLE IF EXISTS silver_crm_sales_details;
+CREATE TABLE silver_crm_sales_details (
+sls_ord_num VARCHAR (50),
+sls_prd_key VARCHAR (50),
+sls_cust_id INT,
+sls_order_dt INT,
+sls_ship_dt INT,
+sls_due_dt INT,
+sls_sales DECIMAL (10,2),
+sls_quantity INT,
+sls_price DECIMAL (10,2),
+dwt_create_date DATETIME DEFAULT (NOW())
+);
+
+DROP TABLE IF EXISTS silver_erp_cust_az12;
+CREATE TABLE silver_erp_cust_az12 (
+cid VARCHAR (50),
+bdate DATE,
+gen VARCHAR (6),
+dwt_create_date DATETIME DEFAULT (NOW())
+);
+
+DROP TABLE IF EXISTS silver_erp_loc_a101;
+CREATE TABLE silver_erp_loc_a101 (
+cid VARCHAR (50),
+cntry VARCHAR(50),
+dwt_create_date DATETIME DEFAULT (NOW())
+);
+
+DROP TABLE IF EXISTS silver_erp_px_cat_g1v2;
+CREATE TABLE silver_erp_px_cat_g1v2 (
+id VARCHAR (50),
+cat VARCHAR (50),
+subcat VARCHAR (50),
+maintenance ENUM ('Yes','No'),
+dwt_create_date DATETIME DEFAULT (NOW())
+);
+
+
+
+/* ===========================
+   CARREGARNDO A CAMADA silver
+   ===========================*/
+  
+/*===========================
+   CARREGARNDO ARQUIVOS CRM
+  ===========================*/
+
+
+
+TRUNCATE TABLE silver_crm_cust_info;
+LOAD DATA INFILE 'C:/ProgramData/MySQL/MySQL Server 8.0/Uploads/sql-data-warehouse-project/datasets/source_crm/cust_info.csv'
+INTO TABLE silver_crm_cust_info
+CHARACTER SET utf8mb4
+FIELDS TERMINATED BY ','
+LINES TERMINATED BY '\r\n'
+IGNORE 1 LINES
+(@cst_id, cst_key, cst_firstname, cst_lastname, cst_marital_status, cst_gndr, @cst_create_data)
+SET
+ cst_id = NULLIF(@cst_id, ''),
+ cst_create_data = STR_TO_DATE(NULLIF(@cst_create_data, ''), '%Y-%m-%d');
+ 
+ SELECT COUNT(*) FROM silver_crm_cust_info;
+ 
+TRUNCATE TABLE silver_crm_prd_info;
+LOAD DATA INFILE 'C:/ProgramData/MySQL/MySQL Server 8.0/Uploads/sql-data-warehouse-project/datasets/source_crm/prd_info.csv'
+INTO TABLE silver_crm_prd_info
+CHARACTER SET utf8mb4
+FIELDS TERMINATED BY ','
+LINES TERMINATED BY '\r\n'
+IGNORE 1 LINES
+(prd_id, prd_key, prd_nm, @prd_cost, prd_line, prd_start_dt, @prd_end_dt)
+SET 
+prd_cost = NULLIF(@prd_cost,''),
+prd_end_dt = NULLIF(@prd_end_dt,'');
+ SELECT * FROM silver_crm_prd_info;
+ SELECT COUNT(*) FROM silver_crm_prd_info;
+ 
+ 
+ TRUNCATE TABLE silver_crm_sales_details;
+ LOAD DATA INFILE 'C:/ProgramData/MySQL/MySQL Server 8.0/Uploads/sql-data-warehouse-project/datasets/source_crm/sales_details.csv'
+ INTO TABLE silver_crm_sales_details
+ CHARACTER SET utf8mb4
+FIELDS TERMINATED BY ','
+LINES TERMINATED BY '\r\n'
+IGNORE 1 LINES
+(sls_ord_num, sls_prd_key, @sls_cust_id, @sls_cust_id, @sls_order_dt, @sls_ship_dt, @sls_due_dt,
+@sls_sales, @sls_quantity, @sls_price)
+SET
+sls_cust_id = NULLIF(@sls_cust_id,''),
+sls_cust_id = NULLIF(@sls_cust_id,''),
+sls_order_dt = NULLIF(@sls_order_dt,''),
+sls_ship_dt = NULLIF(@sls_ship_dt,''),
+sls_due_dt = NULLIF(@sls_due_dt,''),
+sls_sales = NULLIF(@sls_sales,''),
+sls_quantity = NULLIF(@sls_quantity,''),
+sls_price = NULLIF(@sls_price,'');
+
+/*===========================
+   CARREGARNDO ARQUIVOS ERP
+  ===========================*/
+
+TRUNCATE TABLE silver_erp_cust_az12;
+LOAD DATA INFILE 'C:/ProgramData/MySQL/MySQL Server 8.0/Uploads/sql-data-warehouse-project/datasets/source_erp/CUST_AZ12.csv'
+INTO TABLE silver_erp_cust_az12
+ CHARACTER SET utf8mb4
+FIELDS TERMINATED BY ','
+LINES TERMINATED BY '\r\n'
+IGNORE 1 LINES
+(cid,@bdate,@gen)
+SET
+bdate = NULLIF(@bdate,''),
+gen = NULLIF(@gen,'');
+
+TRUNCATE TABLE silver_erp_loc_a101;
+LOAD DATA INFILE 'C:/ProgramData/MySQL/MySQL Server 8.0/Uploads/sql-data-warehouse-project/datasets/source_erp/LOC_A101.csv'
+INTO TABLE silver_erp_loc_a101
+ CHARACTER SET utf8mb4
+FIELDS TERMINATED BY ','
+LINES TERMINATED BY '\r\n'
+IGNORE 1 LINES
+(cid,cntry);
+
+TRUNCATE TABLE silver_erp_px_cat_g1v2;
+LOAD DATA INFILE 'C:/ProgramData/MySQL/MySQL Server 8.0/Uploads/sql-data-warehouse-project/datasets/source_erp/PX_CAT_G1V2.csv'
+INTO TABLE silver_erp_px_cat_g1v2
+ CHARACTER SET utf8mb4
+FIELDS TERMINATED BY ','
+LINES TERMINATED BY '\r\n'
+IGNORE 1 LINES
+(id,cat,subcat,maintenance);
