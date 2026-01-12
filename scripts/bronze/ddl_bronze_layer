@@ -1,12 +1,73 @@
 /*
-========================================
+  =====================================================================================
   DDL SCRIPT: CRIAÇÃO DA CAMADA BRONZE
-========================================
+  =====================================================================================
 PARA QUE SERVER ESSE SCRIPT:
   -ANTES DE CARREGAR O SCRIP FAZ O TRUNCATE DA TABELA
   -FAZ O CARREGAMENTO DOS ARQUIVOS PROVIDOS DO CRM E ERP ATRAVES DE LOAD DATA INFILE
-  -FAZ PEQUENAS TRATATIVAS DE DADOS COMO CELULAS VAZIAS E DEFINE ELAS COMO NULAS (CARACTERISTICA DO MY SQL DE LER VAZIA COMO STR)
+  -FAZ PEQUENAS TRATATIVAS DE DADOS COMO CELULAS VAZIAS E DEFINE ELAS COMO NULAS
+  (CARACTERISTICA DO MY SQL DE LER VAZIA COMO STR)
   -GARANTE A INTEGRIDADE DO PIPELINE MESMO COM CSV 'SUJO'
+  
+  **ATENÇÃO ESSE SCRIP FAZ DROP DAS TABELAS E AS RECRIA**
+  =====================================================================================
+*/
+USE DATAWAREHOUSE;
+DROP TABLE IF EXISTS bronze_crm_cust_info;
+CREATE TABLE bronze_crm_cust_info (
+ cst_id INT,
+ cst_key VARCHAR (50),
+ cst_firstname VARCHAR (50),
+ cst_lastname VARCHAR (50),
+ cst_marital_status CHAR (1),
+ cst_gndr CHAR (1),
+ cst_create_data DATE
+);
+
+DROP TABLE IF EXISTS bronze_crm_prd_info;
+CREATE TABLE bronze_crm_prd_info (
+prd_id INT,
+prd_key VARCHAR (50),
+prd_nm VARCHAR (50),
+prd_cost FLOAT (10,2),
+prd_line CHAR(1),
+prd_start_dt DATETIME,
+prd_end_dt DATETIME
+);
+
+DROP TABLE IF EXISTS bronze_crm_sales_details;
+CREATE TABLE bronze_crm_sales_details (
+sls_ord_num VARCHAR (50),
+sls_prd_key VARCHAR (50),
+sls_cust_id INT,
+sls_order_dt INT,
+sls_ship_dt INT,
+sls_due_dt INT,
+sls_sales DECIMAL (10,2),
+sls_quantity INT,
+sls_price DECIMAL (10,2)
+);
+
+DROP TABLE IF EXISTS bronze_erp_cust_az12;
+CREATE TABLE bronze_erp_cust_az12 (
+cid VARCHAR (50),
+bdate DATE,
+gen VARCHAR (6)
+);
+
+DROP TABLE IF EXISTS bronze_erp_loc_a101;
+CREATE TABLE bronze_erp_loc_a101 (
+cid VARCHAR (50),
+cntry VARCHAR(50)
+);
+
+DROP TABLE IF EXISTS bronze_erp_px_cat_g1v2;
+CREATE TABLE bronze_erp_px_cat_g1v2 (
+id VARCHAR (50),
+cat VARCHAR (50),
+subcat VARCHAR (50),
+maintenance ENUM ('Yes','No')
+);
 
 
 
@@ -101,5 +162,3 @@ FIELDS TERMINATED BY ','
 LINES TERMINATED BY '\r\n'
 IGNORE 1 LINES
 (id,cat,subcat,maintenance);
-
-
