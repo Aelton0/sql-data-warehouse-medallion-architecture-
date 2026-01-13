@@ -1,6 +1,8 @@
-/*LIMPANDO O BRONZE PARA O SILVER*/
+/*==============================================================================================*/
 #Checando valores nulos e/ou duplicados na PK
-SELECT cst_id, COUNT(*)
+#bronze_crm_cust_info
+SELECT cst_id,
+COUNT(*)
 FROM datawarehouse.bronze_crm_cust_info
 GROUP BY cst_id
 HAVING COUNT(*) > 1 OR cst_id IS NULL;
@@ -10,16 +12,38 @@ SELECT *,
 ROW_NUMBER() OVER (PARTITION BY cst_id ORDER BY cst_create_data DESC) AS last_report
 FROM datawarehouse.bronze_crm_cust_info) AS derived
 WHERE last_report = 1;
+
+/*==============================================================================================*/
+
 #Checar espaços nos VARCHAR e CHAR
+#bronze_crm_cust_info
 SELECT cst_key FROM datawarehouse.bronze_crm_cust_info
 WHERE cst_key != TRIM(cst_key);
 /*RESULT 0*/
+
 SELECT cst_firstname FROM datawarehouse.bronze_crm_cust_info
 WHERE cst_firstname != TRIM(cst_firstname);
 /*RESULT 17*/
+
 SELECT cst_lastname FROM datawarehouse.bronze_crm_cust_info
 WHERE cst_lastname != TRIM(cst_lastname);
 /*RESULT 22*/
+
+
+/*==============================================================================================*/
+
+# Padronização dos dados
+
+SELECT DISTINCT cst_gndr
+FROM bronze_crm_cust_info;
+#Resultado = 'M' e 'F' OK
+#Talvez trocar para ENUM para evitar algo diferente.
+SELECT DISTINCT cst_marital_status
+FROM bronze_crm_cust_info;
+#Resultado ='S' e 'M' OK
+#Talvez trocar para ENUM para evitar algo diferente.
+
+
 
 
 
@@ -33,3 +57,6 @@ SELECT * FROM datawarehouse.bronze_erp_loc_a101;
 
 SELECT * FROM datawarehouse.bronze_erp_px_cat_g1v2;
 
+
+/*SILVER*/
+SELECT * FROM datawarehouse.silver_crm_cust_info;
