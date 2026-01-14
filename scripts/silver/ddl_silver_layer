@@ -8,6 +8,7 @@ PARA QUE SERVER ESSE SCRIPT:
   -FAZ PEQUENAS TRATATIVAS DE DADOS COMO CELULAS VAZIAS E DEFINE ELAS COMO NULAS
   (CARACTERISTICA DO MY SQL DE LER VAZIA COMO STR)
   -GARANTE A INTEGRIDADE DO PIPELINE MESMO COM CSV 'SUJO'
+  -ADICÃO DE COLUNA PARA METADADOS
   
   **ATENÇÃO ESSE SCRIP FAZ DROP DAS TABELAS E AS RECRIA**
   =====================================================================================
@@ -79,13 +80,12 @@ dwt_create_date DATETIME DEFAULT (NOW())
 
 
 /* ===========================
-   CARREGARNDO A CAMADA silver
+   CARREGARNDO A CAMADA SILVER
    ===========================*/
   
 /*===========================
    CARREGARNDO ARQUIVOS CRM
   ===========================*/
-
 
 
 TRUNCATE TABLE silver_crm_cust_info;
@@ -99,8 +99,9 @@ IGNORE 1 LINES
 SET
  cst_id = NULLIF(@cst_id, ''),
  cst_create_data = STR_TO_DATE(NULLIF(@cst_create_data, ''), '%Y-%m-%d');
+
  
- SELECT COUNT(*) FROM silver_crm_cust_info;
+
  
 TRUNCATE TABLE silver_crm_prd_info;
 LOAD DATA INFILE 'C:/ProgramData/MySQL/MySQL Server 8.0/Uploads/sql-data-warehouse-project/datasets/source_crm/prd_info.csv'
@@ -113,9 +114,7 @@ IGNORE 1 LINES
 SET 
 prd_cost = NULLIF(@prd_cost,''),
 prd_end_dt = NULLIF(@prd_end_dt,'');
- SELECT * FROM silver_crm_prd_info;
- SELECT COUNT(*) FROM silver_crm_prd_info;
- 
+
  
  TRUNCATE TABLE silver_crm_sales_details;
  LOAD DATA INFILE 'C:/ProgramData/MySQL/MySQL Server 8.0/Uploads/sql-data-warehouse-project/datasets/source_crm/sales_details.csv'
@@ -135,6 +134,7 @@ sls_due_dt = NULLIF(@sls_due_dt,''),
 sls_sales = NULLIF(@sls_sales,''),
 sls_quantity = NULLIF(@sls_quantity,''),
 sls_price = NULLIF(@sls_price,'');
+
 
 /*===========================
    CARREGARNDO ARQUIVOS ERP
