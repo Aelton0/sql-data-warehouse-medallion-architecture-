@@ -19,8 +19,8 @@ CREATE TABLE silver_crm_cust_info (
  cst_key VARCHAR (50),
  cst_firstname VARCHAR (50),
  cst_lastname VARCHAR (50),
- cst_marital_status CHAR (1),
- cst_gndr CHAR (1),
+ cst_marital_status VARCHAR (7),
+ cst_gndr ENUM ('F','M'),
  cst_create_date DATE,
  dwt_create_date DATETIME DEFAULT NOW()
 );
@@ -102,9 +102,7 @@ SET
  cst_marital_status = NULLIF(@cst_marital_status, ''),
  cst_gndr = NULLIF(@cst_gndr, ''),
  cst_create_date = STR_TO_DATE(NULLIF(@cst_create_date, ''), '%Y-%m-%d');
- 
- SELECT * FROM silver_crm_cust_info;
- 
+  
 TRUNCATE TABLE silver_crm_prd_info;
 LOAD DATA INFILE 'C:/ProgramData/MySQL/MySQL Server 8.0/Uploads/sql-data-warehouse-project/datasets/source_crm/prd_info.csv'
 INTO TABLE silver_crm_prd_info
