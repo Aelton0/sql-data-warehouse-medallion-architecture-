@@ -6,7 +6,7 @@ Este projeto demonstra uma solução completa de Data Warehouse e Analytics, uti
 A arquitetura segue o padrão Medallion dividido em três camadas principais:
 <img width="697" height="456" alt="image" src="https://github.com/user-attachments/assets/ec0b2051-93dd-4448-b898-790f6d2e82c6" />
 
-🔹 Camada Bronze – Dados Brutos:
+🔸 Camada Bronze – Dados Brutos:
 - Fonte: Arquivos CSV extraídos de sistemas ERP e CRM.
 - Interface de ingestão: Arquivos via processo batch.
 - Tipo de objeto: Tabelas.
@@ -14,8 +14,8 @@ A arquitetura segue o padrão Medallion dividido em três camadas principais:
 - Transformação: Nenhuma.
 - Modelagem: Nenhuma.
   
-🔸 Camada Prata – Dados Limpos e Padronizados:
-- Transformações aplicadas: Limpeza, padronização, normalização, curas de dados e enriquecimento.
+🔹 Camada Prata – Dados Limpos e Padronizados:
+- Transformações aplicadas: Limpeza, padronização, normalização, enriquecimento dos dados.
 - Tipo de objeto: Tabelas.
 - Processamento: Batch, truncar e inserir.
 - Modelagem: Nenhuma.
