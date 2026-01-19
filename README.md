@@ -36,8 +36,8 @@ Os dados da camada ouro são utilizados para:
 - ETL Pipelines: Scripts SQL para ingestão, transformação e modelagem.
 - Modelagem de Dados: Criação de tabelas fato e dimensões otimizadas para análise.
 - Ferramentas utilizadas:
-- SQL Server Express
-- SQL Server Management Studio (SSMS)
+- MySQL
+- MySQL Workbench
 - DrawIO para diagramas
 - GitHub para versionamento
 - Notion para gerenciamento de tarefas
@@ -45,10 +45,15 @@ Os dados da camada ouro são utilizados para:
 📁 Estrutura do Repositório:
 sql-data-warehouse-medallion-architecture-/
 ├── datasets/              # Dados brutos (ERP e CRM)
+
 ├── docs/                  # Documentação e diagramas
+
 │   ├── data_flow.drawio   # Diagrama de fluxo de dados
+
 │   ├── data_models.drawio # Modelagem dimensional
+
 │   └── naming-conventions.md
+
 ├── scripts/
 │   ├── bronze/            # Scripts de ingestão
 │   ├── silver/            # Scripts de transformação
