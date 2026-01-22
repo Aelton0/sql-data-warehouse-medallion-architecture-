@@ -27,7 +27,7 @@ prd_cat_id VARCHAR (50),
 prd_key VARCHAR (50),
 prd_nm VARCHAR (50),
 prd_cost FLOAT (10,2),
-prd_line CHAR(1),
+prd_line VARCHAR(20),
 prd_start_dt DATETIME,
 prd_end_dt DATETIME,
 dwt_create_date DATETIME DEFAULT NOW()
