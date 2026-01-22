@@ -23,6 +23,7 @@ CREATE TABLE silver_crm_cust_info (
 DROP TABLE IF EXISTS silver_crm_prd_info;
 CREATE TABLE silver_crm_prd_info (
 prd_id INT,
+prd_cat_id VARCHAR (50),
 prd_key VARCHAR (50),
 prd_nm VARCHAR (50),
 prd_cost FLOAT (10,2),
