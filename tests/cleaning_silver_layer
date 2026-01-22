@@ -44,7 +44,29 @@ FROM bronze_crm_cust_info;
 #Talvez trocar para ENUM para evitar algo diferente.
 
 
+SELECT prd_cost, COUNT(*)
+FROM bronze_crm_prd_info
+WHERE prd_cost IS NULL
+GROUP BY prd_cost;
 
+
+
+SELECT prd_line, COUNT(*)
+FROM bronze_crm_prd_info
+GROUP BY prd_line;
+
+SELECT
+CASE
+		WHEN UPPER(TRIM(prd_line)) = 'M' THEN 'Montain'
+        WHEN UPPER(TRIM(prd_line)) = 'R' THEN 'Road'
+		WHEN UPPER(TRIM(prd_line)) = 'S' THEN 'Other Sales'
+		WHEN UPPER(TRIM(prd_line)) = 'T' THEN 'Touring'
+        ELSE 'N/A'
+        
+END AS prd_line,
+COUNT(*)
+FROM bronze_crm_prd_info
+GROUP BY prd_line;
 
 
 SELECT * FROM datawarehouse.bronze_crm_prd_info;
