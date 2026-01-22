@@ -6,10 +6,9 @@
 /*===========================
    CARREGARNDO ARQUIVOS CRM
   ===========================*/
-
+-- USE DATAWAREHOUSE;
 -- CALL proc_load_silver;
-  -- Corrigir Status do Erro: 42S22Message: Unknown column 'prd_cat_id' in 'field list' 15:00
-  -- Ainda tem que arrumar tatus do Erro: 42S22Message: Unknown column 'prd_cat_id' in 'field list' 15:58
+
 DROP PROCEDURE IF EXISTS proc_load_silver;
 DELIMITER $$
 CREATE PROCEDURE proc_load_silver()
@@ -26,7 +25,7 @@ BEGIN
 		GET DIAGNOSTICS CONDITION 1
 			status_error = RETURNED_SQLSTATE,
             message = MESSAGE_TEXT;
-		SELECT CONCAT ('Status do Erro: ', status_error, 'Message: ', message) AS ErrorInfo;
+		SELECT CONCAT ('Status do Erro: ', status_error, ' Message: ', message) AS ErrorInfo;
 		ROLLBACK;
     END;
     START TRANSACTION;
@@ -98,17 +97,20 @@ SELECT
         ELSE 'N/A'
     END AS prd_line,
     CAST(prd_start_dt AS DATE) AS prd_start_dt,
-    DATE_SUB(
-        LEAD(prd_end_dt) OVER (PARTITION BY prd_key ORDER BY prd_start_dt),
-        INTERVAL 1 DAY
+    COALESCE(
+		DATE_SUB(
+			LEAD(prd_start_dt) OVER (PARTITION BY prd_key ORDER BY prd_start_dt),
+			INTERVAL 1 DAY
+		),
+        DATE '9999-12-31'    
     ) AS prd_end_dt
 FROM bronze_crm_prd_info;
 
 SET end_time = NOW();
  SELECT CONCAT('Load Duration: ', TIMESTAMPDIFF(SECOND ,start_time, end_time), ' seconds') AS Duration;
     
-    
 	COMMIT;
     
 END $$
 DELIMITER ;
+
