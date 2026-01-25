@@ -68,6 +68,8 @@ BEGIN
 	WHERE date_flag_last =1;
     SET end_time = NOW();
     SELECT CONCAT('Load Duration: ', TIMESTAMPDIFF(SECOND ,start_time, end_time), ' seconds') AS Duration;
+-- Fim silver_crm_cust_info
+
 
 -- Carregando silver_crm_prd_info
 SET start_time = NOW();
@@ -108,6 +110,8 @@ FROM bronze_crm_prd_info;
 
 SET end_time = NOW();
  SELECT CONCAT('Load Duration: ', TIMESTAMPDIFF(SECOND ,start_time, end_time), ' seconds') AS Duration;
+-- Fim silver_crm_prd_info
+
 
 -- Carregando silver crm_sales_details
 
@@ -156,11 +160,85 @@ FROM bronze_crm_sales_details;
 
 SET end_time = NOW();
 SELECT CONCAT('Load Duration: ', TIMESTAMPDIFF(SECOND ,start_time, end_time), ' seconds') AS Duration;
-    
-    
-    
+-- Fim silver_crm_sales_details
+
+
+-- Carregando silver_erp_cust_az12
+
+SET start_time = NOW();   
+TRUNCATE TABLE silver_erp_cust_az12;    
+INSERT INTO silver_erp_cust_az12 (
+cid,
+bdate,
+gen
+)
+	SELECT
+		SUBSTRING(cid,4,LENGTH(cid)) AS cid,
+		CASE
+			WHEN bdate > NOW()
+			THEN NULL
+			ELSE bdate
+		END AS bdate,
+		CASE
+			WHEN UPPER(TRIM(gen)) IN ('F','FEMALE')
+			THEN 'Female'
+			WHEN UPPER(TRIM(gen)) IN ('M','MALE')
+			THEN 'Male'
+			ELSE 'N/A'
+		END AS gen
+	FROM bronze_erp_cust_az12;
+    SET end_time = NOW(); 
+    SELECT CONCAT('Load Duration: ', TIMESTAMPDIFF(SECOND ,start_time, end_time), ' seconds') AS Duration;
+  -- Fim silver_erp_cust_az12
+  
+  -- Carregando silver silver_erp_loc_a101  
+
+SET start_time = NOW();
+TRUNCATE TABLE silver_erp_loc_a101;
+INSERT INTO silver_erp_loc_a101(
+  cid,
+  cntry
+  )
+  SELECT 
+	REPLACE(cid,'-',''), 
+	CASE
+		WHEN TRIM(cntry) = 'DE' THEN 'Germany'
+		WHEN TRIM(cntry) IN ('US','USA') THEN 'United States'
+		WHEN TRIM(cntry) = '' OR cntry IS NULL THEN 'N/A'
+		ELSE TRIM(cntry)
+	END AS cntry
+ FROM bronze_erp_loc_a101;
+SET end_time = NOW();
+SELECT CONCAT('Load Duration: ', TIMESTAMPDIFF(SECOND ,start_time, end_time), ' seconds') AS Duration;
+ -- Fim silver_erp_loc_a101  
+
+
+ -- Carregando silver_erp_px_cat_g1v2  
+
+SET start_time =  NOW();
+
+TRUNCATE TABLE silver_erp_px_cat_g1v2;
+INSERT INTO silver_erp_px_cat_g1v2(
+	id,
+	cat,
+	subcat,
+	maintenance
+)
+SELECT
+	id,
+	cat,
+	subcat,
+	maintenance
+FROM bronze_erp_px_cat_g1v2;
+
+SET end_time = NOW();
+  
+SELECT CONCAT('Load Duration: ', TIMESTAMPDIFF(SECOND ,start_time, end_time), ' seconds') AS Duration;
+ -- Fim silver_erp_px_cat_g1v2  
+ 
+ 
 	COMMIT;
-    
+ SET batch_end_time = NOW();   
+ SELECT CONCAT('Total Load Duration: ', TIMESTAMPDIFF(SECOND ,batch_start_time, batch_end_time), ' seconds') AS Duration;
 END $$
 DELIMITER ;
-
