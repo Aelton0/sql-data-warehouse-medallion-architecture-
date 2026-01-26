@@ -65,7 +65,7 @@ BEGIN
 	SELECT *,
 		ROW_NUMBER () OVER(PARTITION BY cst_id ORDER BY cst_create_date DESC) AS date_flag_last
 		FROM bronze_crm_cust_info) AS derived
-	WHERE cst_id IS NOT NULL;
+	WHERE cst_id IS NOT NULL AND (date_flag_last = 1);
     SET end_time = NOW();
     SELECT CONCAT('Load Duration: ', TIMESTAMPDIFF(SECOND ,start_time, end_time), ' seconds') AS Duration;
 -- Fim silver_crm_cust_info
