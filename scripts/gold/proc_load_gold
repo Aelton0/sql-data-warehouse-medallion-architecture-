@@ -1,29 +1,50 @@
-USE DATAWAREHOUSE;
+
+
+
+CREATE VIEW gold_dim_customer AS
 
 SELECT 
-ic.cst_id,
-ic.cst_key,
-ic.cst_firstname,
-ic.cst_lastname,
-ic.cst_marital_status,
-ic.cst_gndr,
-ic.cst_create_date,
-ec.bdate,
-ec.gen,
-pc.cntry
+ROW_NUMBER() OVER (ORDER BY cst_id) AS customer_key,
+ic.cst_id AS customer_id,
+ic.cst_key AS custumer_cod,
+ic.cst_firstname AS firstname,
+ic.cst_lastname AS lastname,
+ic.cst_marital_status AS marital_status,
+CASE
+	WHEN ic.cst_gndr != 'N/A' THEN ic.cst_gndr
+	ELSE COALESCE(ec.gen,'N/A')
+    
+END AS gender,
+ec.bdate AS birthdate,
+pc.cntry AS country,
+ic.cst_create_date AS create_date
 FROM silver_crm_cust_info AS ic
 LEFT JOIN silver_erp_cust_az12 AS ec 
 ON ic.cst_key = ec.cid
 LEFT JOIN silver_erp_loc_a101 AS pc
-ON ic.cst_key = pc.cid
+ON ic.cst_key = pc.cid;
 
-/*testes
-SELECT DISTINCT
-ic.cst_gndr,
-ec.gen
-FROM silver_crm_cust_info AS ic
-LEFT JOIN silver_erp_cust_az12 AS ec 
-ON ic.cst_key = ec.cid
-LEFT JOIN silver_erp_loc_a101 AS pc
-ON ic.cst_key = pc.cid
-ORDER BY 1,2*/
+
+CREATE VIEW gold_dim_product AS
+
+SELECT
+ROW_NUMBER () OVER (ORDER BY prd_id) AS product_key, 
+ip.prd_id AS product_id,
+ip.prd_key AS product_cod,
+ip.prd_nm product_name,
+ip.prd_cat_id AS product_cat_id,
+dp.cat AS category,
+dp.subcat AS subcategory,
+dp.maintenance AS maintenance,
+ip.prd_cost AS cost,
+ip.prd_line AS line,
+ip.prd_start_dt AS product_start_date
+FROM silver_crm_prd_info AS ip
+LEFT JOIN silver_erp_px_cat_g1v2 AS dp
+ON ip.prd_cat_id = dp.id
+WHERE prd_end_dt = '9999-12-31 00:00:00'; -- Filtra apenas produtos mais recentes
+
+
+
+
+
