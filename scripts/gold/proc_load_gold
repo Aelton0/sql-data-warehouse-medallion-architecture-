@@ -44,7 +44,20 @@ LEFT JOIN silver_erp_px_cat_g1v2 AS dp
 ON ip.prd_cat_id = dp.id
 WHERE prd_end_dt = '9999-12-31 00:00:00'; -- Filtra apenas produtos mais recentes
 
+CREATE VIEW gold_fact_sales AS
 
-
-
-
+SELECT 
+vd.sls_ord_num AS order_number,
+dp.product_key,
+dc.customer_key,
+vd.sls_order_dt AS order_date, 
+vd.sls_ship_dt AS shipping_date, 
+vd.sls_due_dt AS due_date, 
+vd.sls_sales AS sales_amount, 
+vd.sls_quantity AS quantity,
+vd.sls_price AS price
+FROM silver_crm_sales_details AS vd
+LEFT JOIN gold_dim_product AS dp
+ON vd.sls_prd_key = dp.product_cod
+LEFT JOIN gold_dim_customer AS dc
+ON vd.sls_cust_id = dc.customer_id
